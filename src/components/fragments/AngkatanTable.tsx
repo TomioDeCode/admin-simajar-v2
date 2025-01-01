@@ -2,14 +2,17 @@
 
 import {
   useAngkatan,
+  useCreateAngkatan,
   useDeleteAngkatan,
   useUpdateAngkatan,
 } from "@/hooks/useAngkatan";
 import {
   getCoreRowModel,
   getSortedRowModel,
+  getFilteredRowModel,
   useReactTable,
   flexRender,
+  FilterFn,
 } from "@tanstack/react-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Angkatan } from "@/types/angkatan";
@@ -24,9 +27,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePaginationStore } from "@/store/paginationStore";
 import { TableActions } from "./TableActions";
+import { TableSearch } from "../commons/TableSearch";
+import { CreateModal } from "../commons/CreateModal";
+import { formFields } from "@/forms/formAngkatan";
 
 export default function GenerationsTable() {
   const { page, perPage, setPage } = usePaginationStore();
@@ -36,12 +42,25 @@ export default function GenerationsTable() {
     error,
     refresh,
   } = useAngkatan(page, perPage);
+  const createMutation = useCreateAngkatan();
   const updateMutation = useUpdateAngkatan();
   const deleteMutation = useDeleteAngkatan();
+
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     refresh();
   }, [page, perPage]);
+
+  const fuzzyFilter: FilterFn<any> = (row, columnId, value) => {
+    const itemValue = row.getValue(columnId) as string;
+
+    if (typeof itemValue !== "string") {
+      return String(itemValue).toLowerCase().includes(value.toLowerCase());
+    }
+
+    return itemValue.toLowerCase().includes(value.toLowerCase());
+  };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -51,22 +70,26 @@ export default function GenerationsTable() {
     {
       accessorKey: "number",
       header: "Number",
+      enableGlobalFilter: true,
     },
     {
       accessorKey: "start_date",
       header: "Start Date",
+      enableGlobalFilter: true,
       cell: ({ getValue }) =>
         new Date(getValue() as string).toLocaleDateString(),
     },
     {
       accessorKey: "end_date",
       header: "End Date",
+      enableGlobalFilter: true,
       cell: ({ getValue }) =>
         new Date(getValue() as string).toLocaleDateString(),
     },
     {
       accessorKey: "is_graduated",
       header: "Graduated",
+      enableGlobalFilter: true,
       cell: ({ getValue }) => (getValue() ? "Yes" : "No"),
     },
     {
@@ -93,7 +116,16 @@ export default function GenerationsTable() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     manualPagination: true,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
+    state: {
+      globalFilter: search,
+    },
+    onGlobalFilterChange: setSearch,
+    globalFilterFn: fuzzyFilter,
     pageCount: Math.ceil((responseData?.data.total_data ?? 0) / perPage),
   });
 
@@ -135,6 +167,23 @@ export default function GenerationsTable() {
   return (
     <Card className="w-full">
       <CardContent className="p-4">
+        <div className="flex justify-between items-center">
+          <TableSearch value={search} onChange={setSearch} />
+          <CreateModal<Angkatan>
+            initialData={{
+              number: undefined,
+              start_date: "",
+              end_date: "",
+              is_graduated: false,
+            }}
+            title="Create Angkatan"
+            fields={formFields}
+            onSubmit={async (data) => {
+              await createMutation.create(data);
+              refresh();
+            }}
+          />
+        </div>
         <div className="rounded-md border">
           <Table>
             <TableHeader>

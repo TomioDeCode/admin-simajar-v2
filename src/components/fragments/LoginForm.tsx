@@ -41,7 +41,6 @@ export function LoginForm({
 
       if (response?.token) {
         setCookie("token", response.token);
-        console.log("Login successful:", response.token);
         router.push("/dashboard");
       }
     } catch (error: any) {

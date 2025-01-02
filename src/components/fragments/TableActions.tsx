@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FormModal, FormField } from "@/components/elements/FormModal";
 import { DeleteModal } from "@/components/commons/DeleteModal";
 import { Angkatan } from "@/types/angkatan";
+import { formFields, formFieldsUpdate } from "@/forms/formAngkatan";
 
 interface TableActionsProps {
   row: Angkatan;
@@ -14,38 +15,12 @@ export function TableActions({ row, onUpdate, onDelete }: TableActionsProps) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const formFields: FormField[] = [
-    {
-      id: "number",
-      label: "Number",
-      type: "number",
-      required: true,
-      min: 1,
-    },
-    {
-      id: "start_date",
-      label: "Start Date",
-      type: "date",
-      required: true,
-    },
-    {
-      id: "end_date",
-      label: "End Date",
-      type: "date",
-      required: true,
-    },
-    {
-      id: "is_graduated",
-      label: "Graduated",
-      type: "checkbox",
-    },
-  ];
-
   const handleUpdate = async (data: Partial<Angkatan>) => {
     await onUpdate({
       ...data,
       id: row.id,
     } as Angkatan);
+    setShowUpdateModal(false);
   };
 
   return (
@@ -55,7 +30,6 @@ export function TableActions({ row, onUpdate, onDelete }: TableActionsProps) {
         size="sm"
         onClick={() => {
           setShowUpdateModal(true);
-          console.log(row);
         }}
       >
         Update
@@ -71,10 +45,12 @@ export function TableActions({ row, onUpdate, onDelete }: TableActionsProps) {
       </Button>
       <FormModal
         title="Update Generation"
-        fields={formFields}
+        fields={formFieldsUpdate}
         initialData={row}
         isOpen={showUpdateModal}
-        onClose={() => setShowUpdateModal(false)}
+        onClose={() => {
+          setShowUpdateModal(false);
+        }}
         onSubmit={handleUpdate}
       />
       <DeleteModal

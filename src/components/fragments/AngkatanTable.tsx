@@ -170,6 +170,7 @@ export default function GenerationsTable() {
         <div className="flex justify-between items-center">
           <TableSearch value={search} onChange={setSearch} />
           <CreateModal<Angkatan>
+            btnTitle="Create Angkatan"
             initialData={{
               number: undefined,
               start_date: "",

@@ -7,6 +7,7 @@ interface CreateModalProps<T> {
   initialData: Partial<T>;
   title: string;
   fields: FormField[];
+  btnTitle: string;
 }
 
 export function CreateModal<T extends { id?: string }>({
@@ -14,6 +15,7 @@ export function CreateModal<T extends { id?: string }>({
   initialData = {} as Partial<T>,
   title,
   fields,
+  btnTitle,
 }: CreateModalProps<T>) {
   const [showModal, setShowModal] = useState(false);
 
@@ -25,7 +27,7 @@ export function CreateModal<T extends { id?: string }>({
 
   return (
     <>
-      <Button onClick={() => setShowModal(true)}>Create Generation</Button>
+      <Button onClick={() => setShowModal(true)}>{btnTitle}</Button>
       <FormModal
         title={title}
         fields={fields}

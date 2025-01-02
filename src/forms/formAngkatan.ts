@@ -20,6 +20,10 @@ export const formFields: FormField[] = [
     type: "date",
     required: true,
   },
+];
+
+export const formFieldsUpdate: FormField[] = [
+  ...formFields,
   {
     id: "is_graduated",
     label: "Graduated",

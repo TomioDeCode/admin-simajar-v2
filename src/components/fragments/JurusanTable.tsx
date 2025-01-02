@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  useAngkatan,
-  useCreateAngkatan,
-  useDeleteAngkatan,
-  useUpdateAngkatan,
-} from "@/hooks/useAngkatan";
+  useJurusan,
+  useCreateJurusan,
+  useDeleteJurusan,
+  useUpdateJurusan,
+} from "@/hooks/useJurusan";
 import {
   getCoreRowModel,
   getSortedRowModel,
@@ -15,7 +15,7 @@ import {
   FilterFn,
 } from "@tanstack/react-table";
 import { ColumnDef } from "@tanstack/react-table";
-import { Angkatan } from "@/types/angkatan";
+import { Jurusan } from "@/types/jurusan";
 import {
   Table,
   TableBody,
@@ -32,19 +32,19 @@ import { usePaginationStore } from "@/store/paginationStore";
 import { TableActions } from "./TableActions";
 import { TableSearch } from "../commons/TableSearch";
 import { CreateModal } from "../commons/CreateModal";
-import { formFields } from "@/forms/formAngkatan";
+import { formFields } from "@/forms/formJurusan";
 
-export default function GenerationsTable() {
+export default function JurusanTable() {
   const { page, perPage, setPage } = usePaginationStore();
   const {
     response: responseData,
     isLoading,
     error,
     refresh,
-  } = useAngkatan(page, perPage);
-  const createMutation = useCreateAngkatan();
-  const updateMutation = useUpdateAngkatan();
-  const deleteMutation = useDeleteAngkatan();
+  } = useJurusan(page, perPage);
+  const createMutation = useCreateJurusan();
+  const updateMutation = useUpdateJurusan();
+  const deleteMutation = useDeleteJurusan();
 
   const [search, setSearch] = useState("");
 
@@ -66,40 +66,25 @@ export default function GenerationsTable() {
     setPage(newPage);
   };
 
-  const columns: ColumnDef<Angkatan>[] = [
+  const columns: ColumnDef<Jurusan>[] = [
     {
-      accessorKey: "number",
-      header: "Number",
+      accessorKey: "name",
+      header: "Name",
       enableGlobalFilter: true,
     },
     {
-      accessorKey: "start_date",
-      header: "Start Date",
+      accessorKey: "abbreviation",
+      header: "Abbreviation",
       enableGlobalFilter: true,
-      cell: ({ getValue }) =>
-        new Date(getValue() as string).toLocaleDateString(),
-    },
-    {
-      accessorKey: "end_date",
-      header: "End Date",
-      enableGlobalFilter: true,
-      cell: ({ getValue }) =>
-        new Date(getValue() as string).toLocaleDateString(),
-    },
-    {
-      accessorKey: "is_graduated",
-      header: "Graduated",
-      enableGlobalFilter: true,
-      cell: ({ getValue }) => (getValue() ? "Yes" : "No"),
     },
     {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <TableActions<Angkatan>
+        <TableActions<Jurusan>
           row={row.original}
           formFields={formFields}
-          title="Angkatan"
+          title="Jurusan"
           onUpdate={async (data) => {
             await updateMutation.update({ ...data, id: row.original.id });
             refresh();
@@ -171,15 +156,13 @@ export default function GenerationsTable() {
       <CardContent className="p-4">
         <div className="flex justify-between items-center">
           <TableSearch value={search} onChange={setSearch} />
-          <CreateModal<Angkatan>
-            btnTitle="Create Angkatan"
+          <CreateModal<Jurusan>
+            btnTitle="Create Jurusan"
             initialData={{
-              number: undefined,
-              start_date: "",
-              end_date: "",
-              is_graduated: false,
+              name: "",
+              abbreviation: "",
             }}
-            title="Create Angkatan"
+            title="Create Jurusan"
             fields={formFields}
             onSubmit={async (data) => {
               await createMutation.create(data);
